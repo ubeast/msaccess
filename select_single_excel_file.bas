@@ -1,7 +1,4 @@
-Option Compare Database
-Option Explicit
-
-Function select_single_excel_file()
+Public Function select_single_excel_file() As String
     Dim dir_location As String
     dir_location = CurDir()
     
