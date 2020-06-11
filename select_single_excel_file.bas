@@ -1,28 +1,46 @@
-Public Function select_single_excel_file() As String
-    Dim dir_location As String
-    dir_location = CurDir()
+Public Sub import_excel_file()
+
+    Dim ingest_file_with_path As String
+    ingest_file_with_path = select_single_excel_file()
     
-    Dim f As Object 'FileDialog
-    Set f = Application.FileDialog(3) 'msoFileDialogFilePicker
-                                 ' 1 - msoFileDialogOpen
-                                 ' 2 - msoFileDialogSaveAs
-                                 ' 3 - msoFileDialogFolderPicker
-                                 
-    On Error GoTo Err_SomeName          ' Initialize error handling.
+    ' If user cancels the import exit this process
+    If Len(ingest_file_with_path) < 5 Then Exit Sub
     
-    With f
-       .AllowMultiSelect = False
-       .InitialFileName = dir_location
-       .Filters.Clear
-        .Filters.Add "Excel", "*.xlsx*"
-       .Show
-       
-    End With
+Continue:
+    ' Get filename from "ingest_file_name" which includes the path
+    Dim access_table_name, ingest_file As String
+    ingest_file = get_filename(ingest_file_with_path)
+    access_table_name = ingest_file
     
-    select_single_excel_file = f.SelectedItems(1)
+    ' Remove the extension from the filename
+    access_table_name = Split(access_table_name, ".")(0)
     
-    Exit Function
     
-Err_SomeName:
-    If Err.Number = 5 Then Debug.Print "No file selected"
-End Function
+Filename_Cleanup:
+    ' Remove parenths "()"
+    access_table_name = Replace(Replace(access_table_name, "(", ""), ")", "")
+        
+    ' Truncate characters beyond 50
+    access_table_name = Left(access_table_name, 50)
+        
+    ' Replace spaces with dash "_", place in lowercase, and trim spaces
+    access_table_name = Trim(LCase(Replace(access_table_name, " ", "_")))
+        
+Import_the_file:
+    DoCmd.TransferSpreadsheet acImport, acSpreadsheetTypeExcel12, access_table_name, ingest_file_with_path, True
+    
+Display_MsgBox:
+    Dim msg As String
+    msg = """" & _
+          ingest_file & _
+          """" & vbCr & vbCr & _
+          " was successfully imported to " & _
+          """" & vbCr & vbCr & _
+          access_table_name & _
+          """"
+    MsgBox msg
+    
+View_the_file:
+    DoCmd.OpenTable access_table_name, acViewNormal
+
+End Sub
