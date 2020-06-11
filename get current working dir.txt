@@ -1,0 +1,2 @@
+MS Access has a built in function for this task.  
+CurDir()
