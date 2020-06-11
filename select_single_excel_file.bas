@@ -14,7 +14,7 @@ Public Function select_single_excel_file() As String
        .AllowMultiSelect = False
        .InitialFileName = dir_location
        .Filters.Clear
-       .Filters.Add "All Files", "*.xlsx*"
+        .Filters.Add "Excel", "*.xlsx*"
        .Show
        
     End With
